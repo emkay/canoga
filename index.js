@@ -1,3 +1,4 @@
+const os = require('os')
 const crypto = require('crypto')
 const EventEmitter = require('events')
 const blessed = require('blessed')
@@ -16,11 +17,12 @@ class Canoga extends EventEmitter {
   constructor (opts) {
     super()
 
+    this.path = opts.path || `${os.homedir()}/Music`
     this.artists = new Map()
     this.albums = new Map()
     this.tracks = new Map()
 
-    this.files = new Files('/Users/mike.matuzak/workspace/canoga')
+    this.files = new Files(this.path)
     this.setup()
     this.screen = blessed.screen()
 
