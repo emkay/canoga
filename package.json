@@ -1,0 +1,41 @@
+{
+  "name": "canoga",
+  "version": "1.0.0",
+  "description": "fancy cli music player",
+  "main": "index.js",
+  "scripts": {
+    "lint": "standard",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emkay/canoga.git"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Michael Matuzak",
+    "email": "mmatuzak@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/emkay/canoga/issues"
+  },
+  "homepage": "https://github.com/emkay/canoga#readme",
+  "devDependencies": {
+    "standard": "^11.0.1",
+    "standard-version": "^4.3.0",
+    "tap": "^11.1.2",
+    "weallbehave": "^1.2.0",
+    "weallcontribute": "^1.0.8"
+  },
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.8.5",
+    "lame": "^1.2.4",
+    "mp3-duration": "^1.1.0",
+    "music-metadata": "^0.9.10",
+    "pcm-volume": "^1.0.0",
+    "speaker": "^0.4.0",
+    "walkdir": "0.0.12"
+  }
+}
