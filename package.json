@@ -16,6 +16,7 @@
     "name": "Michael Matuzak",
     "email": "mmatuzak@gmail.com"
   },
+  "bin": "./bin/cmd.js",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/emkay/canoga/issues"
@@ -36,6 +37,7 @@
     "music-metadata": "^0.9.10",
     "pcm-volume": "^1.0.0",
     "speaker": "^0.4.0",
-    "walkdir": "0.0.12"
+    "walkdir": "0.0.12",
+    "yargs": "^11.0.0"
   }
 }

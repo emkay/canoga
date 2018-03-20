@@ -1,4 +1,3 @@
-const os = require('os')
 const crypto = require('crypto')
 const EventEmitter = require('events')
 const blessed = require('blessed')
@@ -9,7 +8,7 @@ const lame = require('lame')
 const fs = require('fs')
 const mp3Duration = require('mp3-duration')
 
-const volume = require('pcm-volume')
+const Volume = require('pcm-volume')
 
 const Files = require('./files')
 
@@ -17,15 +16,16 @@ class Canoga extends EventEmitter {
   constructor (opts) {
     super()
 
-    this.path = opts.path || `${os.homedir()}/Music`
     this.artists = new Map()
     this.albums = new Map()
     this.tracks = new Map()
 
-    this.files = new Files(this.path)
+    this.files = new Files('/Users/mike.matuzak/workspace/canoga')
     this.setup()
     this.screen = blessed.screen()
-    this.grid = contrib.grid({rows: 3, cols: 2, screen: this.screen})
+
+    /* eslint-disable-next-line */
+    this.grid = new contrib.grid({rows: 3, cols: 2, screen: this.screen})
 
     this.screen.key(['escape', 'q', 'C-c'], (ch, key) => process.exit(0))
     this.render()
@@ -143,7 +143,7 @@ class Canoga extends EventEmitter {
 
     decoder.on('format', (f) => {
       const format = f
-      const v = volume()
+      const v = new Volume()
       const speaker = new Speaker(format)
       v.pipe(speaker)
       decoder.pipe(v)
