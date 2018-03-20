@@ -16,13 +16,13 @@ class Files {
       emitter.on('file', (filename, stat) => {
         if (path.extname(filename) === '.mp3') {
           let p = mm.parseFile(filename)
-                    .then(metadata => {
-                      this.entries.push({
-                        filename,
-                        stat,
-                        metadata
-                      })
-                    })
+            .then(metadata => {
+              this.entries.push({
+                filename,
+                stat,
+                metadata
+              })
+            })
           promises.push(p)
         }
       })

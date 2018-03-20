@@ -1,3 +1,4 @@
+const os = require('os')
 const crypto = require('crypto')
 const EventEmitter = require('events')
 const blessed = require('blessed')
@@ -16,14 +17,15 @@ class Canoga extends EventEmitter {
   constructor (opts) {
     super()
 
+    this.path = opts.path || `${os.homedir()}/Music`
     this.artists = new Map()
     this.albums = new Map()
     this.tracks = new Map()
 
-    this.files = new Files('/Users/mike.matuzak/workspace/canoga')
+    this.files = new Files(this.path)
     this.setup()
     this.screen = blessed.screen()
-    this.grid = new contrib.grid({rows: 3, cols: 2, screen: this.screen})
+    this.grid = contrib.grid({rows: 3, cols: 2, screen: this.screen})
 
     this.screen.key(['escape', 'q', 'C-c'], (ch, key) => process.exit(0))
     this.render()
@@ -39,40 +41,40 @@ class Canoga extends EventEmitter {
 
   isArtistInTree (artist) {
     return this.fileTreeData
-        .children['Artists']
-        .children[artist]
+      .children['Artists']
+      .children[artist]
   }
 
   addArtistToTree (artist) {
     this.fileTreeData
-        .children['Artists']
-        .children[artist] = {
-          children: {}
-        }
+      .children['Artists']
+      .children[artist] = {
+        children: {}
+      }
   }
 
   isAlbumInTree (artist, album) {
     return this.fileTreeData
-        .children['Artists']
-        .children[artist]
-        .children[album]
+      .children['Artists']
+      .children[artist]
+      .children[album]
   }
 
   addAlbumToTree (artist, album) {
     this.fileTreeData
-        .children['Artists']
-        .children[artist]
-        .children[album] = {
-          children: {}
-        }
+      .children['Artists']
+      .children[artist]
+      .children[album] = {
+        children: {}
+      }
   }
 
   isTrackInTree (artist, album, track) {
     return this.fileTreeData
-        .children['Artists']
-        .children[artist]
-        .children[album]
-        .children[track]
+      .children['Artists']
+      .children[artist]
+      .children[album]
+      .children[track]
   }
 
   hash (name) {
@@ -82,16 +84,15 @@ class Canoga extends EventEmitter {
   addTrackToTree (artist, album, track, filename) {
     const id = this.hash(track)
     this.fileTreeData
-        .children['Artists']
-        .children[artist]
-        .children[album]
-        .children[track] = {
-          children: {},
-          id
-        }
+      .children['Artists']
+      .children[artist]
+      .children[album]
+      .children[track] = {
+        children: {},
+        id
+      }
     this.tracks.set(id, filename)
   }
-
 
   organize () {
     this.fileTreeData = {
@@ -134,16 +135,16 @@ class Canoga extends EventEmitter {
 
     this.isPlaying = true
     this.timer = setInterval(() => {
-        total += 1
-        const percent = total / duration
-        this.setProgressBar(percent)
-        this.screen.render()
-      }, 1000)
+      total += 1
+      const percent = total / duration
+      this.setProgressBar(percent)
+      this.screen.render()
+    }, 1000)
 
     decoder.on('format', (f) => {
       const format = f
-      const v = new volume()
-      const speaker = new Speaker(format);
+      const v = volume()
+      const speaker = new Speaker(format)
       v.pipe(speaker)
       decoder.pipe(v)
     })
@@ -198,45 +199,4 @@ class Canoga extends EventEmitter {
   }
 }
 
-const play = async () => {
-  // console.log('playing')
-  // console.log('duration: ', duration)
-
-  const gauge = contrib.gauge({label: 'Progress', stroke: 'green', fill: 'white'})
-
-  screen.append(gauge) // must append before setting data
-
-  gauge.setPercent(0)
-
-  screen.key(['escape', 'q', 'C-c'], function (ch, key) {
-    return process.exit(0)
-  })
-
-  screen.render()
-
-  let total = 1
-  const timer = setInterval(() => {
-    total += 1
-    const percent = total / duration
-    // console.log('total: ', total)
-    // console.log('duration: ', duration)
-    // console.log('percent:', percent)
-    gauge.setPercent(percent)
-    screen.render()
-  }, 1000)
-
-  const readable = fs.createReadStream('test.mp3')
-  const decoder = new lame.Decoder();
-
-  decoder.on('format', (f) => {
-    const format = f
-    const v = new volume()
-    const speaker = new Speaker(format);
-    v.pipe(speaker)
-    decoder.pipe(v)
-  })
-
-  readable.pipe(decoder)
-}
-
-const canoga = new Canoga()
+module.exports = Canoga
