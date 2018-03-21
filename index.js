@@ -91,7 +91,9 @@ class Canoga extends EventEmitter {
       .children[album]
       .children[track] = {
         children: {},
-        id
+        id,
+        artist,
+        album
       }
     this.tracks.set(id, filename)
   }
@@ -149,6 +151,7 @@ class Canoga extends EventEmitter {
       const speaker = new Speaker(format)
       v.pipe(speaker)
       decoder.pipe(v)
+      speaker.on('close', this.next.bind(this))
     })
 
     readable.pipe(decoder)
@@ -159,6 +162,9 @@ class Canoga extends EventEmitter {
   }
 
   next () {
+    this.isPlaying = false
+    this.setProgressBar(0)
+    this.play()
   }
 
   prev () {
@@ -173,6 +179,36 @@ class Canoga extends EventEmitter {
     this.organize()
     this.setupProgressBar()
     this.setupFileTree()
+    this.setupDisplay()
+    this.render()
+  }
+
+  setupDisplay () {
+    this.display = this.grid.set(0, 1, 2, 1, contrib.table, {
+     interactive: false
+     , label: 'Info'
+     , width: '30%'
+     , height: '30%'
+     , border: {type: "line", fg: "cyan"}
+     , columnSpacing: 10
+     , columnWidth: [36]
+    })
+  }
+
+  setDisplay (artist, album, track) {
+    this.display.setData(
+      { headers: ['Now Playing'],
+        data:
+        [ [track],
+          [''],
+          ['By'],
+          [''],
+          [artist],
+          [''],
+          ['Off the album'],
+          [''],
+          [album]
+        ]})
     this.render()
   }
 
@@ -183,6 +219,7 @@ class Canoga extends EventEmitter {
     this.fileTree.on('select', node => {
       if (node.id) {
         this.currentFile = this.tracks.get(node.id)
+        this.setDisplay(node.artist, node.album, node.name)
         this.play()
       }
     })
@@ -190,7 +227,7 @@ class Canoga extends EventEmitter {
   }
 
   setupProgressBar () {
-    this.progressBar = this.grid.set(2, 0, 2, 2, contrib.gauge,
+    this.progressBar = this.grid.set(2, 0, 1, 2, contrib.gauge,
       {label: 'Progress', stroke: 'green', fill: 'white'})
     this.setProgressBar(0)
   }
