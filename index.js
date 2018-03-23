@@ -162,6 +162,7 @@ class Canoga extends EventEmitter {
   }
 
   next () {
+    clearInterval(this.timer)
     this.isPlaying = false
     this.setProgressBar(0)
     this.play()
