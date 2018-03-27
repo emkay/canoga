@@ -83,7 +83,7 @@ class Canoga extends EventEmitter {
     return crypto.createHash('md5').update(name).digest('hex')
   }
 
-  addTrackToTree (artist, album, track, filename) {
+  addTrackToTree (artist, album, track, filename, picture) {
     const id = this.hash(track)
     this.fileTreeData
       .children['Artists']
@@ -93,7 +93,8 @@ class Canoga extends EventEmitter {
         children: {},
         id,
         artist,
-        album
+        album,
+        picture
       }
     this.tracks.set(id, filename)
   }
@@ -111,6 +112,10 @@ class Canoga extends EventEmitter {
 
     this.files.entries.forEach(entry => {
       const {artist, album, title} = entry.metadata.common
+      const picture = entry.metadata.common.picture &&
+        entry.metadata.common.picture[0] &&
+        entry.metadata.common.picture[0].data
+
       this.artists.set(artist, album)
       this.albums.set(album, title)
 
@@ -124,7 +129,7 @@ class Canoga extends EventEmitter {
         }
 
         if (!this.isTrackInTree(artist, album, title)) {
-          this.addTrackToTree(artist, album, title, entry.filename)
+          this.addTrackToTree(artist, album, title, entry.filename, picture)
         }
       }
     })
@@ -184,15 +189,25 @@ class Canoga extends EventEmitter {
     this.render()
   }
 
+  setPicture (picture) {
+    const render = this.render.bind(this)
+
+    this.picture = this.grid.set(1, 1, 1, 1, contrib.picture, {
+      base64: picture,
+      cols: 30,
+      onReady: render
+    })
+  }
+
   setupDisplay () {
-    this.display = this.grid.set(0, 1, 2, 1, contrib.table, {
-     interactive: false
-     , label: 'Info'
-     , width: '30%'
-     , height: '30%'
-     , border: {type: "line", fg: "cyan"}
-     , columnSpacing: 10
-     , columnWidth: [36]
+    this.display = this.grid.set(0, 1, 1, 1, contrib.table, {
+     interactive: false,
+     label: 'Info',
+     width: '30%',
+     height: '30%',
+     border: {type: "line", fg: "cyan"},
+     columnSpacing: 10,
+     columnWidth: [36]
     })
   }
 
@@ -221,6 +236,7 @@ class Canoga extends EventEmitter {
       if (node.id) {
         this.currentFile = this.tracks.get(node.id)
         this.setDisplay(node.artist, node.album, node.name)
+        this.setPicture(node.picture)
         this.play()
       }
     })
