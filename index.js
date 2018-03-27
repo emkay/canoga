@@ -201,13 +201,13 @@ class Canoga extends EventEmitter {
 
   setupDisplay () {
     this.display = this.grid.set(0, 1, 1, 1, contrib.table, {
-     interactive: false,
-     label: 'Info',
-     width: '30%',
-     height: '30%',
-     border: {type: "line", fg: "cyan"},
-     columnSpacing: 10,
-     columnWidth: [36]
+      interactive: false,
+      label: 'Info',
+      width: '30%',
+      height: '30%',
+      border: {type: 'line', fg: 'cyan'},
+      columnSpacing: 10,
+      columnWidth: [36]
     })
   }
 
