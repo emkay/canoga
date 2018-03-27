@@ -237,6 +237,7 @@ class Canoga extends EventEmitter {
         this.currentFile = this.tracks.get(node.id)
         this.setDisplay(node.artist, node.album, node.name)
         this.setPicture(node.picture)
+        if (this.timer) clearInterval(this.timer)
         this.play()
       }
     })
