@@ -1,5 +1,4 @@
 const os = require('os')
-const crypto = require('crypto')
 const EventEmitter = require('events')
 const blessed = require('blessed')
 const contrib = require('blessed-contrib')
@@ -12,15 +11,14 @@ const mp3Duration = require('mp3-duration')
 const Volume = require('pcm-volume')
 
 const Files = require('./files')
+const Tracks = require('./tracks')
 
 class Canoga extends EventEmitter {
   constructor (opts) {
     super()
 
     this.path = opts.path || `${os.homedir()}/Music`
-    this.artists = new Map()
-    this.albums = new Map()
-    this.tracks = new Map()
+    this.tracker = new Tracks()
 
     this.files = new Files(this.path)
     this.setup()
@@ -39,100 +37,6 @@ class Canoga extends EventEmitter {
 
   async getDuration () {
     return parseInt(await mp3Duration(this.currentFile))
-  }
-
-  isArtistInTree (artist) {
-    return this.fileTreeData
-      .children['Artists']
-      .children[artist]
-  }
-
-  addArtistToTree (artist) {
-    this.fileTreeData
-      .children['Artists']
-      .children[artist] = {
-        children: {}
-      }
-  }
-
-  isAlbumInTree (artist, album) {
-    return this.fileTreeData
-      .children['Artists']
-      .children[artist]
-      .children[album]
-  }
-
-  addAlbumToTree (artist, album) {
-    this.fileTreeData
-      .children['Artists']
-      .children[artist]
-      .children[album] = {
-        children: {}
-      }
-  }
-
-  isTrackInTree (artist, album, track) {
-    return this.fileTreeData
-      .children['Artists']
-      .children[artist]
-      .children[album]
-      .children[track]
-  }
-
-  hash (name) {
-    return crypto.createHash('md5').update(name).digest('hex')
-  }
-
-  addTrackToTree (artist, album, track, filename, picture) {
-    const id = this.hash(track)
-    this.fileTreeData
-      .children['Artists']
-      .children[artist]
-      .children[album]
-      .children[track] = {
-        children: {},
-        id,
-        artist,
-        album,
-        picture
-      }
-    this.tracks.set(id, filename)
-  }
-
-  organize () {
-    this.fileTreeData = {
-      extended: true,
-      children: {
-        'Artists': {
-          extended: true,
-          children: {}
-        }
-      }
-    }
-
-    this.files.entries.forEach(entry => {
-      const {artist, album, title} = entry.metadata.common
-      const picture = entry.metadata.common.picture &&
-        entry.metadata.common.picture[0] &&
-        entry.metadata.common.picture[0].data
-
-      this.artists.set(artist, album)
-      this.albums.set(album, title)
-
-      if (artist && album && title) {
-        if (!this.isArtistInTree(artist)) {
-          this.addArtistToTree(artist)
-        }
-
-        if (!this.isAlbumInTree(artist, album)) {
-          this.addAlbumToTree(artist, album)
-        }
-
-        if (!this.isTrackInTree(artist, album, title)) {
-          this.addTrackToTree(artist, album, title, entry.filename, picture)
-        }
-      }
-    })
   }
 
   async play () {
@@ -181,8 +85,8 @@ class Canoga extends EventEmitter {
   }
 
   async setup () {
-    await this.loadFiles()
-    this.organize()
+    const entries = await this.loadFiles()
+    this.tracker.organize(entries)
     this.setupProgressBar()
     this.setupFileTree()
     this.setupDisplay()
@@ -234,14 +138,14 @@ class Canoga extends EventEmitter {
     this.fileTree.focus()
     this.fileTree.on('select', node => {
       if (node.id) {
-        this.currentFile = this.tracks.get(node.id)
+        this.currentFile = this.tracker.tracks.get(node.id)
         this.setDisplay(node.artist, node.album, node.name)
         this.setPicture(node.picture)
         if (this.timer) clearInterval(this.timer)
         this.play()
       }
     })
-    this.fileTree.setData(this.fileTreeData)
+    this.fileTree.setData(this.tracker.fileTreeData)
   }
 
   setupProgressBar () {
