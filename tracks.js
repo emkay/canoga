@@ -81,6 +81,7 @@ class Tracks {
       const {artist, album, title} = entry.metadata.common
       const picture = entry.metadata.common.picture &&
         entry.metadata.common.picture[0] &&
+        entry.metadata.common.picture[0].format === 'png' &&
         entry.metadata.common.picture[0].data
 
       this.artists.set(artist, album)

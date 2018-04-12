@@ -94,6 +94,7 @@ class Canoga extends EventEmitter {
   }
 
   setPicture (picture) {
+    if (!picture) return
     const render = this.render.bind(this)
 
     this.picture = this.grid.set(1, 1, 1, 1, contrib.picture, {
@@ -140,7 +141,8 @@ class Canoga extends EventEmitter {
       if (node.id) {
         this.currentFile = this.tracker.tracks.get(node.id)
         this.setDisplay(node.artist, node.album, node.name)
-        this.setPicture(node.picture)
+
+        if (node.picture) this.setPicture(node.picture)
         if (this.timer) clearInterval(this.timer)
         this.play()
       }
